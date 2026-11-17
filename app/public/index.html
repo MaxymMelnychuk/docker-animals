@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Animaux dans zoo</title>
+  <title>Animaux du zoo</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; color: #222; }
     h1 { margin-bottom: .2rem; }
@@ -20,25 +20,25 @@
   </style>
 </head>
 <body>
-  <h1>Salles</h1>
-  <p class="conteneur">Réservation de salles de l'école (données fictives)</p>
+  <h1>🐾 Animaux du zoo</h1>
+  <p class="conteneur">Gestion des animaux du zoo</p>
 
   <div id="etat" class="etat ko">Base : ...</div>
-  <p class="conteneur">Cette page est servie par le conteneur : <strong id="conteneur">...</strong></p>
+  <p class="conteneur">Conteneur : <strong id="conteneur">...</strong></p>
 
-  <h2>Réservations</h2>
+  <h2>Liste des animaux</h2>
   <table>
-    <thead><tr><th>Jour</th><th>Créneau</th><th>Salle</th><th>Motif</th></tr></thead>
+    <thead><tr><th>Nom</th><th>Espèce</th><th>Âge</th><th>Description</th></tr></thead>
     <tbody id="liste"><tr><td colspan="4">Chargement...</td></tr></tbody>
   </table>
 
-  <h2>Ajouter une réservation</h2>
+  <h2>Ajouter un animal</h2>
   <form id="formulaire">
-    <input name="salle" placeholder="Salle (ex. Salle 101)" required>
-    <input name="jour" type="date" required>
-    <input name="creneau" placeholder="Créneau (ex. 14:00 - 16:00)" required>
-    <input name="motif" placeholder="Motif (ex. Révisions)" required>
-    <button type="submit">Réserver</button>
+    <input name="nom" placeholder="Nom (ex. Lion)" required>
+    <input name="espece" placeholder="Espèce (ex. Félin)" required>
+    <input name="age" placeholder="Âge (ex. 5)" required>
+    <input name="description" placeholder="Description (ex. Roi de la savane)" required>
+    <button type="submit">Ajouter</button>
   </form>
   <p id="message"></p>
 
@@ -51,16 +51,16 @@
       document.getElementById("conteneur").textContent = sante.conteneur;
 
       const liste = document.getElementById("liste");
-      const reponse = await fetch("/api/reservations");
+      const reponse = await fetch("/api/animaux");
       if (!reponse.ok) {
-        liste.innerHTML = '<tr><td colspan="4">Pas de base de données : rien à afficher pour l\'instant.</td></tr>';
+        liste.innerHTML = '<tr><td colspan="4">Pas de base de données : rien à afficher.</td></tr>';
         return;
       }
-      const reservations = await reponse.json();
+      const animaux = await reponse.json();
       liste.innerHTML = "";
-      for (const r of reservations) {
+      for (const a of animaux) {
         const ligne = document.createElement("tr");
-        for (const valeur of [r.jour, r.creneau, r.salle, r.motif]) {
+        for (const valeur of [a.nom, a.espece, a.age, a.description]) {
           const cellule = document.createElement("td");
           cellule.textContent = valeur;
           ligne.appendChild(cellule);
@@ -72,7 +72,7 @@
     document.getElementById("formulaire").addEventListener("submit", async (e) => {
       e.preventDefault();
       const donnees = Object.fromEntries(new FormData(e.target));
-      const reponse = await fetch("/api/reservations", {
+      const reponse = await fetch("/api/animaux", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(donnees),
@@ -83,7 +83,7 @@
         e.target.reset();
       } else {
         const erreur = await reponse.json();
-        message.textContent = "Impossible d'enregistrer : " + erreur.erreur;
+        message.textContent = "Erreur : " + erreur.erreur;
       }
       rafraichir();
     });
